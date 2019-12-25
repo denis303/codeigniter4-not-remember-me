@@ -1,5 +1,13 @@
 <?php
-
+/**
+ *  Not remember me cookie
+ *
+ *  Not working in Chrome when:
+ *
+ *  1. On Startup = "Continue where you left off"
+ *  2. Continue running background apps when Google Chrome is closed = On
+ *
+ */
 namespace Denis303\CodeIgniter\NotRememberMe;
 
 use Config\App;
@@ -39,67 +47,6 @@ abstract class BaseCookie
         $this->cookiePrefix = $config->cookiePrefix;
     }
 
-    public function generateToken()
-    {
-        return md5(time() . rand(0, PHP_INT_MAX)); 
-    }
-
-    public function getCookie()
-    {
-        helper(['cookie']);
-
-        return get_cookie($this->name);
-    }
-
-    /**
-     *  Set "not remember me" cookie
-     *
-     *  Not working in Chrome, where:
-     *
-     *  1. On Startup = Continue where you left off
-     *  2. Continue running background apps when Google Chrome is closed = On
-     *
-     */
-    public function setCookie($token = null)
-    {
-        helper(['cookie']);
-
-        return return set_cookie(
-            $this->name,
-            $token,
-            0,
-            $this->cookieDomain,
-            $this->cookiePath,
-            $this->cookiePrefix,
-            $this->secure, // only send over HTTPS
-            $this->httpOnly // hide from Javascript
-        );
-    }
-
-    public function deleteCookie(bool $deleteSession = true)
-    {
-        helper(['cookie']);
-
-        return delete_cookie(
-            $this->name, 
-            $this->cookieDomain, 
-            $this->cookiePath, 
-            $this->cookiePrefix
-        );
-    }
-
-    public function setToken($token = null)
-    {
-        if (!$token)
-        {
-            $token = $this->generateToken();
-        }
-
-        $this->setSession($token);
-
-        $this->setCookie($token);
-    }
-
     public function validateToken()
     {
         $token = $this->getSession();
@@ -123,6 +70,58 @@ abstract class BaseCookie
         }
 
         return true;
+    }
+
+    public function setToken($token = null)
+    {
+        if (!$token)
+        {
+            $token = $this->generateToken();
+        }
+
+        $this->setSession($token);
+
+        $this->setCookie($token);
+    }
+
+    public function generateToken()
+    {
+        return md5(time() . rand(0, PHP_INT_MAX)); 
+    }
+
+    public function getCookie()
+    {
+        helper(['cookie']);
+
+        return get_cookie($this->name);
+    }
+
+    public function setCookie($token = null)
+    {
+        helper(['cookie']);
+
+        return return set_cookie(
+            $this->name,
+            $token,
+            0,
+            $this->cookieDomain,
+            $this->cookiePath,
+            $this->cookiePrefix,
+            $this->secure,
+            $this->httpOnly
+        );
+    }
+
+    public function deleteCookie(bool $deleteSession = true)
+    {
+        helper(['cookie']);
+
+        return delete_cookie(
+            $this->name, 
+            $this->cookieDomain, 
+            $this->cookiePath, 
+            $this->cookiePrefix
+        );
     }
 
     public function getSession()
