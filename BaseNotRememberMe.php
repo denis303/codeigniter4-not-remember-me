@@ -1,11 +1,15 @@
 <?php
 /**
- *  Not remember me cookie
+ * Not remember me cookie
  *
- *  Not working in Chrome when:
+ * @author denis303 <mail@denis303.com>
+ * @license MIT
+ * @link http://denis303.com
  *
- *  1. On Startup = "Continue where you left off"
- *  2. Continue running background apps when Google Chrome is closed = On
+ * Not working in Chrome when:
+ *
+ *   1. On Startup = "Continue where you left off"
+ *   2. Continue running background apps when Google Chrome is closed = On
  *
  */
 namespace Denis303\CodeIgniter;
