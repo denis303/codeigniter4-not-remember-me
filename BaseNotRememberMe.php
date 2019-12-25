@@ -8,13 +8,13 @@
  *  2. Continue running background apps when Google Chrome is closed = On
  *
  */
-namespace Denis303\CodeIgniter\NotRememberMe;
+namespace Denis303\CodeIgniter;
 
 use Config\App;
 use Config\Services;
 use Exception;
 
-abstract class BaseCookie
+abstract class BaseNotRememberMe
 {
 
     public $name;
