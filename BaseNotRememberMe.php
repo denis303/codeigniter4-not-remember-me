@@ -55,16 +55,8 @@ abstract class BaseNotRememberMe
         {
             $cookie = $this->getCookie();
         
-            if ($cookie == $token)
+            if ($cookie != $token)
             {
-                return true;
-            }
-            else
-            {
-                $this->deleteCookie();
-
-                $this->deleteSession();
-
                 return false;
             }
         }
@@ -87,6 +79,13 @@ abstract class BaseNotRememberMe
     public function generateToken()
     {
         return md5(time() . rand(0, PHP_INT_MAX)); 
+    }
+
+    public function deleteToken()
+    {
+        $this->deleteSession();
+
+        $this->deleteCookie();
     }
 
     public function getCookie()
