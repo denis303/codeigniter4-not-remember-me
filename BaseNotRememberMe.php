@@ -103,7 +103,7 @@ abstract class BaseNotRememberMe
     {
         helper(['cookie']);
 
-        return return set_cookie(
+        return set_cookie(
             $this->name,
             $token,
             0,
