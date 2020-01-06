@@ -1,16 +1,15 @@
 <?php
 /**
- * Not remember me cookie
+ * CodeIgniter 4 Not Remember Me
  *
- * @author denis303 <mail@denis303.com>
+ * @author denis303 <dev@denis303.com>
  * @license MIT
  * @link http://denis303.com
  *
- * Not working in Chrome when:
+ * Not rememver me feature not working in Chrome (and other browsers) when:
  *
  *   1. On Startup = "Continue where you left off"
- *   2. Continue running background apps when Google Chrome is closed = On
- *
+ *   2. Continue running background apps when Google Chrome is closed = "On"
  */
 namespace Denis303\CodeIgniter;
 
@@ -51,35 +50,6 @@ abstract class BaseNotRememberMe
         $this->cookiePrefix = $config->cookiePrefix;
     }
 
-    public function validateToken()
-    {
-        $token = $this->getSession();
-
-        if ($token)
-        {
-            $cookie = $this->getCookie();
-        
-            if ($cookie != $token)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public function setToken($token = null)
-    {
-        if (!$token)
-        {
-            $token = $this->generateToken();
-        }
-
-        $this->setSession($token);
-
-        $this->setCookie($token);
-    }
-
     public function generateToken()
     {
         return md5(time() . rand(0, PHP_INT_MAX)); 
@@ -87,19 +57,19 @@ abstract class BaseNotRememberMe
 
     public function deleteToken()
     {
-        $this->deleteSession();
+        $this->deleteTokenFromSession();
 
-        $this->deleteCookie();
+        $this->deleteTokenFromCookie();
     }
 
-    public function getCookie()
+    public function getTokenFromCookie()
     {
         helper(['cookie']);
 
         return get_cookie($this->name);
     }
 
-    public function setCookie($token = null)
+    public function setTokenToCookie($token)
     {
         helper(['cookie']);
 
@@ -115,7 +85,7 @@ abstract class BaseNotRememberMe
         );
     }
 
-    public function deleteCookie(bool $deleteSession = true)
+    public function deleteTokenFromCookie()
     {
         helper(['cookie']);
 
@@ -127,25 +97,54 @@ abstract class BaseNotRememberMe
         );
     }
 
-    public function getSession()
+    public function getTokenFromSession()
     {
         $session = Services::session();
 
         return $session->get($this->name);
     }
 
-    public function setSession(string $token)
+    public function setTokenToSession(string $token)
     {
         $session = Services::session();
 
         return $session->set($this->name, $token);
     }
 
-    public function deleteSession()
+    public function deleteTokenFromSession()
     {
         $session = Services::session();
 
         return $session->remove($this->name);
+    }
+
+    public function setToken($token = null)
+    {
+        if (!$token)
+        {
+            $token = $this->generateToken();
+        }
+
+        $this->setTokenToSession($token);
+
+        $this->setTokenToCookie($token);
+    }
+
+    public function validateToken()
+    {
+        $token = $this->getTokenFromSession();
+
+        if ($token)
+        {
+            $cookie = $this->getTokenFromCookie();
+        
+            if ($cookie != $token)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }
