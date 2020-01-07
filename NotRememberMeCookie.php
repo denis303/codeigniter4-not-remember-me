@@ -1,5 +1,4 @@
 <?php
-
 /**
  * CodeIgniter 4 Not Remember Me Cookie
  *

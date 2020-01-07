@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * @author denis303 <dev@denis303.com>
+ * @license MIT
+ * @link http://denis303.com
+ */
 namespace Denis303\NotRememberMe;
 
 use Config\Services;
