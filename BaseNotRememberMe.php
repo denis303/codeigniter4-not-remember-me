@@ -1,53 +1,27 @@
 <?php
 /**
- * CodeIgniter 4 Not Remember Me
- *
  * @author denis303 <dev@denis303.com>
  * @license MIT
  * @link http://denis303.com
- *
- * Not rememver me feature not working in Chrome (and other browsers) when:
- *
- *   1. On Startup = "Continue where you left off"
- *   2. Continue running background apps when Google Chrome is closed = "On"
  */
-namespace Denis303\CodeIgniter;
-
-use Config\App;
-use Config\Services;
-use Exception;
+namespace Denis303\NotRememberMe;
 
 abstract class BaseNotRememberMe
 {
 
     public $name;
 
-    public $secure = false; // Whether to only send the cookie through HTTPS
+    protected $_session;
 
-    public $httpOnly = false; // Whether to hide the cookie from JavaScript
-
-    public $cookieDomain;
-
-    public $cookiePath;
-
-    public $cookiePrefix;
+    protected $_cookie;
 
     public function __construct($name)
     {
         $this->name = $name;
 
-        $config = config(App::class);
+        $this->_session = new NotRememberMeSession($name);
 
-        if (!$config)
-        {
-            throw new Exception('Config not found.');
-        }
-
-        $this->cookieDomain = $config->cookieDomain;
-
-        $this->cookiePath = $config->cookiePath;
-
-        $this->cookiePrefix = $config->cookiePrefix;
+        $this->_cookie = new NotRememberMeCookie($name);
     }
 
     public function generateToken()
@@ -55,96 +29,35 @@ abstract class BaseNotRememberMe
         return md5(time() . rand(0, PHP_INT_MAX)); 
     }
 
-    public function deleteToken()
-    {
-        $this->deleteTokenFromSession();
-
-        $this->deleteTokenFromCookie();
-    }
-
-    public function getTokenFromCookie()
-    {
-        helper(['cookie']);
-
-        return get_cookie($this->name);
-    }
-
-    public function setTokenToCookie($token)
-    {
-        helper(['cookie']);
-
-        return set_cookie(
-            $this->name,
-            $token,
-            0,
-            $this->cookieDomain,
-            $this->cookiePath,
-            $this->cookiePrefix,
-            $this->secure,
-            $this->httpOnly
-        );
-    }
-
-    public function deleteTokenFromCookie()
-    {
-        helper(['cookie']);
-
-        return delete_cookie(
-            $this->name, 
-            $this->cookieDomain, 
-            $this->cookiePath, 
-            $this->cookiePrefix
-        );
-    }
-
-    public function getTokenFromSession()
-    {
-        $session = Services::session();
-
-        return $session->get($this->name);
-    }
-
-    public function setTokenToSession(string $token)
-    {
-        $session = Services::session();
-
-        return $session->set($this->name, $token);
-    }
-
-    public function deleteTokenFromSession()
-    {
-        $session = Services::session();
-
-        return $session->remove($this->name);
-    }
-
-    public function setToken($token = null)
-    {
-        if (!$token)
-        {
-            $token = $this->generateToken();
-        }
-
-        $this->setTokenToSession($token);
-
-        $this->setTokenToCookie($token);
-    }
-
     public function validateToken()
     {
-        $token = $this->getTokenFromSession();
+        $sessionToken = $this->_session->getToken();
 
-        if ($token)
+        if ($sessionToken)
         {
-            $cookie = $this->getTokenFromCookie();
+            $cookieToken = $this->_cookie->getToken();
         
-            if ($cookie != $token)
+            if ($cookieToken != $sessionToken)
             {
                 return false;
             }
         }
 
         return true;
+    }
+
+    public function setToken(string $token)
+    {
+        $this->_session->setToken($token);
+
+        $this->_cookie->setToken($token);
+    }
+
+    public function deleteToken()
+    {
+        $this->_session->deleteToken();
+
+        $this->_cookie->deleteToken();
     }
 
 }

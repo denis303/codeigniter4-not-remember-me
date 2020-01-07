@@ -6,6 +6,6 @@
  */
 namespace Denis303\NotRememberMe;
 
-class NotRememberMe extends BaseNotRememberMe
+class NotRememberMeCookie extends BaseNotRememberMeCookie
 {
 }
